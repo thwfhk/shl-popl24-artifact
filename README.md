@@ -276,50 +276,113 @@ linearity enabled:
 > linx --enable-handlers --track-control-flow-linearity
 ```
 
-- We can mix control-flow-linear and control-flow-unlimited
-  operations in a control-flow-unlimited effect scope (the default
-  case). The anonymous effect variable `_` has kind `Any` by default
-  which can be unified with any operations.
+- Invoke a control-flow-linear operation `Choose` in a
+  control-flow-linear context:
   ```
-  links> fun() {do U; lindo L};
-  fun : () {L:() =@ a,U:() => ()|_}-> a
+  links> fun g1() {xlin; if (lindo Choose) 42 else 84};
+  g1 = fun : () {Choose:() =@ Bool|_::Lin}-> Int
+  ```
+  We use `xlin` to switch the current control-flow linearity to
+  linear. The anonymous effect row variable `_` has kind `Lin` which
+  can only be unified with control-flow-linear operations.
+
+- Invoke a control-flow-linear operation `Choose` in a
+  control-flow-unlimited context:
+  ```
+  links> fun g2() {if (lindo Choose) 42 else 84};
+  g2 = fun : () {Choose:() =@ Bool|_}-> Int
+  ```
+  It is sound to invoke control-flow-linear operations in
+  control-flow-unlimited contexts. Without kind annotation, the
+  anonymous effect row variable `_` has kind `Any` by default which
+  can be unified with any operations.
+
+- Mix control-flow-linear and control-flow-unlimited operations in a
+  control-flow-unlimited context:
+  ```
+  links> fun g3() {if (lindo Choose) do Print("42") else do Print ("84")};
+  g3 = fun : () {Choose:() =@ Bool,Print:(String) => a|_}-> a
   ```
 
-- We can only invoke control-flow-linear operations in a
-  control-flow-linear effect scope (in other words, we cannot invoke
-  control-flow-unlimited operations in a control-flow-linear effect
-  scope). The linear control flow enables the usage of the linear
-  channel `ch`. Now the effect variable `_` has kind `Lin`
-  explicitly, which can only be unified with linear operations with
-  signatures `=@`.
+- Handle control-flow-linear operations:
   ```
-  links> fun(ch:End) {xlin; lindo L; close(ch)};
-  fun : (End) {L:() =@ ()|_::Lin}~> ()
-  ```
-
-- We can only handle control-flow-linear operations using a linear
-  handler (indicated by `=@` in the clause) which guarantees the
-  continuation is used exactly once.
-  ```
-  links> handle ({xlin; lindo L + 40}) { case <L =@ r> -> xlin; r(2) };
+  links> handle (g1()) {case <Choose =@ r> -> xlin; r(true)};
   42 : Int
+  links> handle (g2()) {case <Choose =@ r> -> xlin; r(true)};
+  42 : Int
+  links> handle (handle (g3()) {case <Print(s) => r> -> println(s); r(())})
+         {case <Choose =@ r> -> xlin; r(true)}
+  42
+  () : ()
+  ```
+  We write `case <Choose =@ r> -> ...` for the handler clauses of the
+  control-flow-linear operation `Choose`. The operation clauses must
+  match the control-flow linearity of operations. Otherwise, we get a
+  type error:
+  ```
+  links> handle (g1()) {case <Choose => r> -> r(true) + r(false)};
+  <stdin>:1: Type error: The effect type of an input to a handle should match the type of its computation patterns, but the expression
+      `g1()'
+  has effect type
+      `{Choose:() =@ Bool|a}'
+  while the handler handles effects
+      `{Choose:() => Bool,wild:()|b::Any}'
+  In expression: handle (g1()) {case <Choose => r> -> r(true) + r(false)}.
+  ```
+  The continuation function `r` bound by `Choose =@ r` is given a
+  linear function type and must be used exactly once in a
+  control-flow-linear context (enabled by `xlin`). Otherwise, we get
+  type errors:
+  ```
+  links> handle (g1()) {case <Choose =@ r> -> r(true) + r(false)};
+  <stdin>:1: Type error: Variable r has linear type
+      `(Bool) {}~@ Int'
+  but is used 2 times.
+  In expression: handle (g1()) {case <Choose =@ r> -> r(true) + r(false)}.
   ```
 
-- We can handle control-flow-unlimited operations before entering a
-  control-flow-linear effect scope as long as we guarantee that they
-  are all handled. Note that after handling, the presence variable of
-  `Choose` and row variable are both linear.
+- Use linear resources in a control-flow-linear context:
   ```
-  links> fun(ch:End) { xlin; close(ch); handle ({if (do Choose) 40 else 2}) {case <Choose => r> -> r(true) + r(false)} };
-  fun : (End) {Choose{_::Lin}|_::Lin}~> Int
+  links> fun(ch) {xlin; var x = if (lindo Choose) 42 else 84; close(send(x,ch))};
+  fun : (!(Int).End) {Choose:() =@ Bool|_::Lin}~> ()
+  ```
+  The linear channel `ch` must be used in control-flow-linear
+  contexts. Otherwise, we get a type error complaining that the
+  variable `ch` has an unlimited type which cannot be unified with a
+  session type:
+  ```
+  links> fun(ch) {var x = if (lindo Choose) 42 else 84; close(send(x,ch))};
+  <stdin>:1: Type error: The function
+      `send'
+  has type
+      `(Int, !(Int).a::Session) ~b~> a::Session'
+  while the arguments passed to it have types
+      `Int'
+  and
+      `c::(Unl,Mono)'
+  ...
   ```
 
-- When writing explicit quantifiers, we must explicitly annotate the
+- Handle control-flow-unlimited operations fully before entering
+  control-flow-linear contexts:
+  ```
+  links> fun(ch) { xlin;
+                   var x = handle ({if (do Choose) 42 else 84})
+                           {case <Choose => r> -> r(true) + r(false)};
+                   close(send(x,ch)) };
+  fun : (!(Int).End) {Choose{_::Lin}|_::Lin}~> ()
+  ```
+  Note that after handling, the presence variable of `Choose` and row
+  variable are both control-flow-linear because the handler is in a
+  control-flow-linear context.
+
+- When writing explicit quantifiers, we should explicitly annotate the
   kinds of row variables using `e::Row(Lin)` or `e::Row(Any)`. If the
-  subkind is not specified, it means `Lin` instead of `Any` in order
-  to be compatible with variants and records in Links which also use
-  row variables. It is meaningful future work to explicitly separate
-  value row variables and effect row variables in Links.
+  subkind is not specified, it means `Lin` instead of `Any` for
+  backwards compatibility (because row variables are used by both
+  effect types and variant / record types in Links). It is meaningful
+  future work to explicitly separate value row variables and effect
+  row variables in Links.
   ```
   links> sig f:forall e::Row(Any). () {Get:() => Int|e}-> Int fun f() {do Get}
   f = fun : () {Get:() => Int|_}-> Int
