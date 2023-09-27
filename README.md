@@ -26,7 +26,7 @@ The artifact is structured as follows
    a quick introduction to the effect handlers, linear types (session
    types), and control-flow linearity in Links in order to add
    customised examples.
-4. The section [Inspecting the Source Files](#inspecting-the-source-files)
+4. The section [Relevant Source Files](#relevant-source-files)
    highlights some relevant source files with our CFL extension.
 
 The directory structure of the artifact is as follows
@@ -62,37 +62,142 @@ other architectures (like Apple M1), you can either build the image
 from scratch using [Dockerfile](./Dockerfile) or use the [virtual
 machine](#using-virtual-machine).
 
-TODO:
+
+1. Unpack the artifact \
+   TODO:
+
+2. Obtain the Docker image \
+   You can either download a prepared image or build it yourself.
+   1. Downloading the image \
+      You can download the prepared image (built for x86_64
+      architectures) by issuing the following command
+
+      ```
+      $ docker pull links-lang/shl-popl24-artifact:latest
+      ```
+   2. Building from source \
+      To build the image from scratch you may use provided
+      [Dockerfile](./Dockerfile) build script. Depending on your
+      hardware the build process may take upwards an hour, though, any
+      reasonable modern workstation ought to be able to finish the
+      process within 5 minutes. If you are using an x86_64 machine,
+      then you may build the image by issuing the following command
+      ```
+      $ docker build -t shl-popl24-artifact .
+      ```
+      If you are on an Arm-powered machine, then you may try to cross build
+      the image
+      ```
+      $ docker buildx build --platform linux/amd64 -t shl-popl24-artifact .
+      ```
+
+3. Launch the image inside a container \
+   To test image, we can launch it inside a container. If you are on
+   an x86_64 machine, then invoke the following command to launch the
+   image and drop you into an interactive shell
+   ```
+   > docker run -it shl-popl24-artifact
+   ```
+   If you are on an Arm-powered device then you may try to use the
+   emulation layer, e.g.
+   ```
+   > docker run --platform linux/amd64 -it shl-popl24-artifact
+   ```
+   Nonetheless, once the shell has been launched you should be
+   directed to `/artifact` directory with the following files
+   ```
+   /artifact$ ls
+   README.md  links  run-tests.py	tests
+   ```
+   To exit the container again, simply type
+   ```
+   $ exit
+   ```
+
+4. Sanity check \
+   To ensure that Links is successfully built in the directory
+   `/artifact/links`, enter the Links REPL with CFL enabled by the
+   following command
+   ```
+   /artifact$ ./links/links --control-flow-linearity
+    _     _ __   _ _  __  ___
+   / |   | |  \ | | |/ / / ._\
+   | |   | | , \| |   /  \  \
+   | |___| | |\ \ | |\ \ _\  \
+   |_____|_|_| \__|_| \_|____/
+   Welcome to Links version 0.9.8 (Burghmuirhead)
+   links>
+   ```
+   The global command `linx` is linked to Links. So the following
+   command should also work
+   ```
+   /artifact$ linx --control-flow-linearity
+    _     _ __   _ _  __  ___
+   / |   | |  \ | | |/ / / ._\
+   | |   | | , \| |   /  \  \
+   | |___| | |\ \ | |\ \ _\  \
+   |_____|_|_| \__|_| \_|____/
+   Welcome to Links version 0.9.8 (Burghmuirhead)
+   links>
+   ```
 
 
 ### Using Virtual Machine
 
-TODO:
-
-
-### Sanity Check
-
-Enter `linx`
-
-
-<!-- ## List of Claims in the Paper -->
-
+We provide the file `shl-popl24.ova`, which is a virtual machine
+stored in the Open Virtual Appliance format supported by most
+virtualisation software. Use your favourite virtualisation solution
+(VirtualBox, VMWare) to import the virtual machine file. After booting
+up the virtual machine log in as "user" with password "user". Then,
+jump to the step 3 of [Using Docker](#using-docker).
 
 
 ## Evaluation Instructions
 
-TODO:
+To simplify the evaluation, we wrap all examples and their expected
+results into test files with suffix `.tests`. Three test files
+`paper.tests`, `handlers.tests`, and `more-cfl.tests` as well as their
+auxiliary links programs are provided in `tests`.
+
+## Format of Test Files
+
+The first three lines of test files make sure that the CFL extension
+is enabled for all tests. Comments start with `#`.
+
+The main part of test files consists of several blocks of consecutive
+lines, separated by empty lines. Each such block represents one test
+case, including its description, Links code, expected result, and
+other optional arguments.
+
+The first line of each block contains a description.
+
+The second line usually contains the actual Links code.
+Alternatively, in some cases, the second line contains a path to a
+`.links` file containing the actual code.
+
+Finally, the lines from the third onward give extra information about the
+expected output of the program.  This includes:
+
+  * The messages printed  (`stdout :` and `stderr :`)
+  * The exit code, if non-zero ( `exit :`)
+  * Flag to read a program from a file (`filemode :`)
 
 ### Testing Examples from the Paper
 
 We provide all Links examples in Section 1 and Section 4, as well as
 the Links version of all Feffpop examples in Section 2.
 
+To test them, run
 ```
 /artifact$ ./run-tests.py tests/paper.tests
 ```
 
 ### Testing the Test Suite of Links
+
+We provide all examples from the original test suite of Links that use
+effect handlers.
+
+To test them, run
 
 ```
 /artifact$ ./run-tests.py tests/handlers.tests
@@ -100,14 +205,41 @@ the Links version of all Feffpop examples in Section 2.
 
 ### Testing More Examples of CFL
 
+We provide more examples to test the behaviour of the CFL extension.
+
+To test them, run
 ```
 /artifact$ ./run-tests.py tests/more-cfl.tests
 ```
 
 ### Creating Your Own Examples
 
+We provide two guides, [Quick Guide to Links](#quick-guide-to-links)
+and [Quick Guide to CFL in Links](#quick-guide-to-cfl-in-links), to
+help you get familiar with Links in order to create your own examples.
+You can test the examples in the guide in the REPL and write your own
+examples.
+
+To enter the Links REPL with CFL enabled, run
+```
+/artifact$ linx --control-flow-linearity
+```
+
+To execute a program file, run
 ```
 /artifact$ linx --control-flow-linearity tests/custom/your_own_example.links
+```
+
+Alternatively, you can first enter the REPL and then load the file
+```
+/artifact$ linx --control-flow-linearity
+ _     _ __   _ _  __  ___
+/ |   | |  \ | | |/ / / ._\
+| |   | | , \| |   /  \  \
+| |___| | |\ \ | |\ \ _\  \
+|_____|_|_| \__|_| \_|____/
+Welcome to Links version 0.9.8 (Burghmuirhead)
+links> @load "tests/custom/your_own_example.links"
 ```
 
 
@@ -244,8 +376,8 @@ examples about linear types in [Quick Guide to CFL in Links](#quick-guide-to-con
 
 This section gives a quick introduction to the CFL extension of Links,
 the main contribution of our artifact. The extension is enabled by
-passing the flag `--track-control-flow-linearity`. It is usually used
-together with `--enabled-handlers`. Some explanation of the CFL
+passing the flag `--control-flow-linearity`, which automatically
+enables the flag `--enabled-handlers`. Some explanation of the CFL
 extension can also be found in Section 4 of the paper.
 
 ### New Constructs
@@ -426,13 +558,17 @@ linearity enabled:
 
 ### Relationship between Feffpop and Links with CFL
 
-## Inspecting the Source Files
-
-The source can be found in the `links` directory. Relevant source
-files you might wish to look at:
-
-* `links/core/sugarTypes.ml` -- syntax for the surface language
-* `links/core/typeSugar.ml` -- type inference
-* `links/core/desugarEffects.ml` -- desugaring of effect types
-
 TODO:
+
+## Relevant Source Files
+
+The source code can be found in the `links` directory. The following
+list highlights the most relevant source files:
+
+* `links/core/typeSugar.ml` : type inference. This file contains the
+  main mechanism of tracking control-flow linearity.
+* `links/core/sugarTypes.ml` : syntax for the surface language
+* `links/core/types.ml` : semantic types
+* `links/core/desugarTypeVariables.ml` : desugaring of type variables
+* `links/core/desugarEffects.ml` : desugaring of anonymous effect variables
+* `links/core/parser.mly` : parser
