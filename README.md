@@ -2,10 +2,10 @@
 
 This is the artifact for the paper:
 
-*Wenhao Tang, Daniel Hillerström, Sam Lindley, J. Garrett Morris: Soundly Handling Linearity.*
+*Wenhao Tang, Daniel Hillerström, Sam Lindley, J. Garrett Morris, "Soundly Handling Linearity"*
 
-The artifact contains the implementation of tracking control-flow
-linearity (CFL) in Links as described in Section 4 of the paper, based
+The artifact contains the implementation of control-flow linearity
+(CFL) extension in Links as described in Section 4 of the paper, based
 on the core calculus $\mathrm{F}_{\mathrm{eff}}^\circ$ formalised in
 Section 3. This implementation soundly combine the linear types
 (session types) and multi-shot effect handlers of Links, solving a
@@ -16,26 +16,26 @@ long-standing soundness bug (see issue
 
 The artifact is structured as follows
 
-1. The section [Getting Started Guide](#getting-started-guide)
-   shows how to install the artifact
-2. The section [Step by Step Instructions](#step-by-step-instructions)
-   is a detailed guide on how to run the experiments inside a Docker
-   container running the provided Docker image.
-3. The section [Inspecting the Source
-   Files](#inspecting-the-source-files) highlights some relevant
-   source files with our WasmFX additions.
-4. The section [The WasmFX Toolchains](#the-wasmfx-toolchains)
-   describes how our "toolchains" work.
-5. The section [Reference Machine
-   Specification](#reference-machine-specification) contains some
-   detailed information about the reference machine used to conduct
-   the experiments.
+1. The section [Getting Started Guide](#getting-started-guide) shows
+   how to install the artifact and run Links.
+2. The section [Evaluation Instructions](#evaluation-instructions) is
+   a detailed guide on how to run the examples in the paper as well as
+   other test examples we provide.
+3. The section [Quick Guide to Links](#quick-guide-to-links) and
+   [Quick Guide to CFL in Links](#quick-guide-to-cfl-in-links) provide
+   a quick introduction to the effect handlers, linear types (session
+   types), and control-flow linearity in Links in order to add
+   customised examples.
+4. The section [Inspecting the Source Files](#inspecting-the-source-files)
+   highlights some relevant source files with our CFL extension.
 
 The directory structure of the artifact is as follows
 
-* `links` contains the full source code of Links extended with control-flow
-  linearity, which is used for the Docker image.
-* `examples` contains the examples
+* `links` contains the full source code of Links extended with
+  control-flow linearity, which is used for the Docker image.
+* `tests` contains the test files for the examples from the paper, the
+  original test suite of Links, and more examples about CFL.
+* `run-tests.py` is a script to run the test files.
 
 
 ## Getting Started Guide
@@ -63,11 +63,11 @@ from scratch using [Dockerfile](./Dockerfile) or use the [virtual
 machine](#using-virtual-machine).
 
 TODO:
-- Install / build
-- Run
-- Sanity check
+
 
 ### Using Virtual Machine
+
+TODO:
 
 
 ### Sanity Check
@@ -81,18 +81,34 @@ Enter `linx`
 
 ## Evaluation Instructions
 
+TODO:
 
-### Examples from the Paper
+### Testing Examples from the Paper
 
 We provide all Links examples in Section 1 and Section 4, as well as
 the Links version of all Feffpop examples in Section 2.
 
-We include all the examples of Feffpop and Links in the paper.
+```
+/artifact$ ./run-tests.py tests/paper.tests
+```
 
-### Running the Test Suite
+### Testing the Test Suite of Links
 
-### Creating Your Own Tests
+```
+/artifact$ ./run-tests.py tests/handlers.tests
+```
 
+### Testing More Examples of CFL
+
+```
+/artifact$ ./run-tests.py tests/more-cfl.tests
+```
+
+### Creating Your Own Examples
+
+```
+/artifact$ linx --control-flow-linearity tests/custom/your_own_example.links
+```
 
 
 ## Quick Guide to Links
@@ -410,20 +426,13 @@ linearity enabled:
 
 ### Relationship between Feffpop and Links with CFL
 
-## Code Structure
+## Inspecting the Source Files
 
 The source can be found in the `links` directory. Relevant source
 files you might wish to look at:
 
 * `links/core/sugarTypes.ml` -- syntax for the surface language
 * `links/core/typeSugar.ml` -- type inference
+* `links/core/desugarEffects.ml` -- desugaring of effect types
 
-* `links/core/desugarSessionExceptions.ml` -- desugaring of
-  try-as-in-otherwise into handlers (sec. 5.4)
-* `links/core/websocketMessages.ml` -- messages sent from client to be
-  processed by server
-* `links/core/channelVarUtils.ml` -- traversal of values to find endpoint IDs,
-  required for cancellation of names containd in values and contexts
-* `links/core/proc.ml` -- server concurrency runtime
-* `links/lib/js/jslib.js` -- client concurrency runtime
-* `links/core/evalir.ml` -- server interpreter
+TODO:
