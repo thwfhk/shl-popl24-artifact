@@ -33,10 +33,9 @@ The artifact is structured as follows
 
 The directory structure of the artifact is as follows
 
-* `links` contains the source code of Links extended with control-flow
+* `links` contains the full source code of Links extended with control-flow
   linearity, which is used for the Docker image.
 * `examples` contains the examples
-* (TODO: shared folder?)
 
 
 ## Getting Started Guide
@@ -50,12 +49,18 @@ instructions on to install and configure Docker for your operating
 system. We also provide a virtual machine which runs the docker
 container of the image.
 
+<!-- ### Installing Links Directly
+
+We strongly recommend using the [Docker image](#using-docker) or
+[virtual machine](#using-virtual-machine). If you do not wish to use
+Docker however, you can install Links from source using. -->
+
 ### Using Docker
 
 The provided Docker image is compatible with x86_64 architectures. For
 other architectures (like Apple M1), you can either build the image
-from scratch using [Dockerfile](./Dockerfile) or use the (virtual
-machine)[#using-virtual-machine].
+from scratch using [Dockerfile](./Dockerfile) or use the [virtual
+machine](#using-virtual-machine).
 
 TODO:
 - Install / build
@@ -65,15 +70,28 @@ TODO:
 ### Using Virtual Machine
 
 
+### Sanity Check
+
+Enter `linx`
+
+
 <!-- ## List of Claims in the Paper -->
 
 
 
 ## Evaluation Instructions
 
-### Test suites
 
-### Examples from the paper
+### Examples from the Paper
+
+We provide all Links examples in Section 1 and Section 4, as well as
+the Links version of all Feffpop examples in Section 2.
+
+We include all the examples of Feffpop and Links in the paper.
+
+### Running the Test Suite
+
+### Creating Your Own Tests
 
 
 
@@ -376,19 +394,36 @@ linearity enabled:
   variable are both control-flow-linear because the handler is in a
   control-flow-linear context.
 
-- When writing explicit quantifiers, we should explicitly annotate the
-  kinds of row variables using `e::Row(Lin)` or `e::Row(Any)`. If the
-  subkind is not specified, it means `Lin` instead of `Any` for
-  backwards compatibility (because row variables are used by both
-  effect types and variant / record types in Links). It is meaningful
-  future work to explicitly separate value row variables and effect
-  row variables in Links.
+- Explicit quantifiers for effect row variables with control-flow
+  linearity:
   ```
   links> sig f:forall e::Row(Any). () {Get:() => Int|e}-> Int fun f() {do Get}
   f = fun : () {Get:() => Int|_}-> Int
   ```
+  When writing explicit quantifiers, we should explicitly annotate the
+  control-flow linearity of effect row variables in their kinds using
+  `e::Row(Lin)` or `e::Row(Any)`. If the subkind is not specified, it
+  means `Lin` instead of `Any` for backwards compatibility (because
+  row variables are used by both effect types and variant / record
+  types in Links). It is meaningful future work to explicitly separate
+  value row variables and effect row variables in Links.
 
 ### Relationship between Feffpop and Links with CFL
 
 ## Code Structure
 
+The source can be found in the `links` directory. Relevant source
+files you might wish to look at:
+
+* `links/core/sugarTypes.ml` -- syntax for the surface language
+* `links/core/typeSugar.ml` -- type inference
+
+* `links/core/desugarSessionExceptions.ml` -- desugaring of
+  try-as-in-otherwise into handlers (sec. 5.4)
+* `links/core/websocketMessages.ml` -- messages sent from client to be
+  processed by server
+* `links/core/channelVarUtils.ml` -- traversal of values to find endpoint IDs,
+  required for cancellation of names containd in values and contexts
+* `links/core/proc.ml` -- server concurrency runtime
+* `links/lib/js/jslib.js` -- client concurrency runtime
+* `links/core/evalir.ml` -- server interpreter

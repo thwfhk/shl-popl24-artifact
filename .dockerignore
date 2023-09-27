@@ -1,0 +1,17 @@
+# default ignores
+**/.DS_Store
+**/__pycache__
+**/.venv
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.github
+**/.gitattributes
+**/.vs
+**/.vscode
+
+# Links specific ignores
+**/_build
+**/linx

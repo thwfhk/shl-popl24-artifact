@@ -1,0 +1,177 @@
+---
+config: tests/control_flow_linearity.config
+---
+
+# This file contains more tests for the control-flow linearity
+# extension in addition to the examples in the paper.
+
+## Usage of control-flow-linear/unlimited operations and linear resources
+
+Using linear variables in linear continuations (1)
+fun(){xlin; var lf = linfun(x) {x}; lf(42)}
+stdout : fun : () { |_::Lin}-> Int
+
+Using linear variables in linear continuations (2)
+{ xlin; var lf = linfun(x) {x}; linfun(){xlin; lf(1)} }
+stdout : fun : () { |_::Lin}-@ Int
+
+Using linear variables in unlimited continuations (1)
+fun() {var lf = linfun(x) {x}; lf(1)}
+exit : 1
+stderr : @.*Type error: Variable .* of linear type .* is used in a non-linear continuation.*
+
+Using linear variables in unlimited continuations (2)
+{ xlin; var lf = linfun(x) {x}; linfun(){lf(1)} }
+exit : 1
+stderr : @.*Type error: Variable .* of linear type .* is used in a non-linear continuation.*
+
+Using control-flow-linear operations in unlimited continuations
+fun() {lindo Foo}
+stdout : fun : () {Foo:() =@ a|_}-> a
+
+Using control-flow-linear operations in linear continuations
+fun() {xlin; lindo Foo}
+stdout : fun : () {Foo:() =@ a|_::Lin}-> a
+
+Using control-flow-linear operations and linear variables in linear continuations
+fun(ch:End) {xlin; lindo L; close(ch)}
+stdout : fun : (End) {L:() =@ ()|_::Lin}~> ()
+
+Using control-flow-unlimited operations in unlimited continuations
+fun() {do Foo}
+stdout : fun : () {Foo:() => a|_}-> a
+
+Using control-flow-unlimited operations in linear continuations
+fun() {xlin; do Foo}
+exit : 1
+stderr : @.*Type error.*
+
+Mixing control-flow-linear and -unlimited operations in unlimited continuations
+fun() {do U; lindo L}
+stdout : fun : () {L:() =@ a,U:() => ()|_}-> a
+
+
+## Handling control-flow-linear/unlimited operations
+
+Handling control-flow-linear operations (1)
+handle (lindo Foo(20) + 1) {case <Foo(i) =@ k> -> xlin; k(i)}
+stdout : 21 : Int
+
+Handling control-flow-linear operations (2)
+{linfun f(x) {40+x} handle ({xlin; f(lindo Foo)}) {case <Foo =@ k> -> xlin; k(2)}}
+stdout : 42 : Int
+
+Handling control-flow-linear operations (3)
+handle (lindo Foo(20) + 1) {case <Foo(i) => k> -> xlin; k(i)}
+exit : 1
+stderr : @.*Type error.*
+
+Handling control-flow-unlimited operations (1)
+handle (do Foo(20) + 1) {case <Foo(i) => k> -> k(i) + k(i)}
+stdout : 42 : Int
+
+Handling control-flow-unlimited operations (2)
+{linfun f(x) {x} handle (f(do Foo)) {case <Foo => k> -> k(1)}}
+exit : 1
+stderr : @.*Type error: Variable .* of linear type .* is used in a non-linear continuation.*
+
+Handling control-flow-unlimited operations (3)
+handle (do Foo(20) + 1) {case <Foo(i) =@ k> -> k(i) + k(i)}
+exit : 1
+stderr : @.*Type error.*
+
+Handling control-flow-unlimited operations (4)
+fun(ch:End) { xlin; close(ch); handle ({if (do Choose) 40 else 2}) {case <Choose => r> -> r(true) + r(false)} }
+stdout : fun : (End) {Choose{_::Lin}|_::Lin}~> Int
+
+
+## Kind annotations and operation annotations
+
+CFL kinds of explicit quantifiers in type signatures (1)
+sig f:forall e::Row(Any). () {Foo:() => Int|e}-> Int fun f() {do Foo} f
+stdout : fun : () {Foo:() => Int|_}-> Int
+
+CFL kinds of explicit quantifiers in type signatures (2)
+sig f:forall e::Row. () {Foo:() => Int|e}-> Int fun f() {do Foo} f
+stdout : fun : () {Foo:() => Int|_::Lin}-> Int
+
+Operation annotation
+fun(m) { xlin; handle(m()) { case <Foo(x) =@ k> : ((Int) =@ Int) -> xlin; k (x) } }
+stdout : fun : (() {Foo:(Int) =@ Int|a::Lin}~> b::Any) {Foo{_::Lin}|a::Lin}~> b::Any
+
+
+## Usage of linear resources in handlers
+
+Using linear variables in deep handlers (1)
+tests/more-cfl/lin_deep1.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Variable .* of linear type .* is used in a deep handler.*
+
+Using linear variables in deep handlers (2)
+tests/more-cfl/lin_deep2.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Variable .* of linear type .* is used in a deep handler.*
+
+Using linear variables in deep handlers (3)
+tests/more-cfl/lin_deep3.links
+filemode : true
+stdout : 84 : Int
+
+Using linear variables in shallow handlers (1)
+tests/more-cfl/lin_shallow1.links
+filemode : true
+stdout : fun : () {Foo:() =@ Int|_::Lin}~> Int
+
+Using linear variables in shallow handlers (2)
+tests/more-cfl/lin_shallow2.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Variable .* has linear type .* is used 2 times.*
+
+Using linear variables in shallow handlers (3)
+tests/more-cfl/lin_shallow3.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Use of variable .* of linear type .* in unlimited function binding.*
+
+Using linear variables in shallow handlers (4)
+tests/more-cfl/lin_shallow4.links
+filemode : true
+stdout : 84 : Int
+
+Using linear variables in shallow handlers (5)
+tests/more-cfl/lin_shallow5.links
+filemode : true
+stdout : 84 : Int
+
+
+## Larger examples with control-flow linearity
+
+Linear choice and unlimited choice
+tests/more-cfl/choose.links
+filemode : true
+stdout : [10, 10, 18, 12, 20] : [Int]
+
+Combining unlimited choice and unlimited state
+tests/more-cfl/choose_and_state.links
+filemode : true
+stdout : [3, 4, 9, 10, 3, 3, 3, 3] : [Int]
+
+Combining linear choice and unlimited state
+tests/more-cfl/choose_and_state2.links
+filemode : true
+stdout : 3 : Int
+
+Checking the first part of Issue 544
+tests/more-cfl/issue544a.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Effect row type .* can not be made linear .*
+
+Checking the second part of Issue 544
+tests/more-cfl/issue544b.links
+filemode : true
+exit : 1
+stderr : @.*Type error: Effect row type .* can not be made linear .*
