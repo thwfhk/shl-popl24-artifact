@@ -5,6 +5,7 @@ FROM --platform=linux/amd64 ocaml/opam:alpine-3.18-ocaml-4.14
 WORKDIR /artifact
 COPY links links
 COPY tests tests
+COPY cfl.patch cfl.patch
 COPY run-tests.py run-tests.py
 COPY README.md README.md
 

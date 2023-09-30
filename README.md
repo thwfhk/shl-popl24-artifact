@@ -31,10 +31,11 @@ The artifact is structured as follows
 
 The directory structure of the artifact is as follows
 
-* `links` contains the full source code of Links extended with
-  control-flow linearity, which is used for the Docker image.
+* `links` contains our fork of Links which is extended with
+  control-flow linearity
 * `tests` contains the test files for the examples from the paper, the
   original test suite of Links, and more examples about CFL.
+* `cfl.patch` contains the changesets for our fork of Links
 * `run-tests.py` is a script to run the test files.
 
 
@@ -562,8 +563,15 @@ TODO:
 
 ## Relevant Source Files
 
-The source code can be found in the `links` directory. The following
-list highlights the most relevant source files:
+This artifact contains the full source code and test suite of our fork
+of Links in the `links` directory. To emphasise which part is crucial
+to the CFL extension, we include our changesets to the Links source
+code (i.e., the `links/core` directory) in the file `cfl.patch`. These
+changesets were obtained by running `git diff` of our fork against the
+upstream master branch (before our PR is merged).
+
+The following list highlights the most relevant source files in the
+`links/core` directory:
 
 * `links/core/typeSugar.ml` : type inference. This file contains the
   main mechanism of tracking control-flow linearity.
