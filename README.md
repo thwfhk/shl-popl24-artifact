@@ -255,7 +255,7 @@ effect handlers and linear types in Links.
 To be consistent with other examples in this artifact, we enter REPL
 with effect handlers and control-flow linearity enabled:
 ```
-> linx --enable-handlers --track-control-flow-linearity
+> linx --control-flow-linearity
  _     _ __   _ _  __  ___
 / |   | |  \ | | |/ / / ._\
 | |   | | , \| |   /  \  \
@@ -369,16 +369,17 @@ variable `b` is a session type. The `SessionFail` operation and `~>`
 curly arrow are irrelevant to this artifact and can be ignored (just
 understood as the normal arrow `->`).
 
-Note that the flag `--track-control-flow-linearity` influences the
-default behaviour of linear resources in Links. We will show more
-examples about linear types in [Quick Guide to CFL in Links](#quick-guide-to-control-flow-linearity-in-links).
+Note that the flag `--control-flow-linearity` influences the default
+behaviour of linear resources in Links. We will show more examples
+about linear types in [Quick Guide to CFL in
+Links](#quick-guide-to-control-flow-linearity-in-links).
 
 ## Quick Guide to CFL in Links
 
 This section gives a quick introduction to the CFL extension of Links,
 the main contribution of our artifact. The extension is enabled by
 passing the flag `--control-flow-linearity`, which automatically
-enables the flag `--enabled-handlers`. Some explanation of the CFL
+enables the flag `--enable-handlers`. Some explanation of the CFL
 extension can also be found in Section 4 of the paper.
 
 ### New Constructs
@@ -440,7 +441,7 @@ non-trivial changes.)
 Again, we enter REPL with both effect handlers and control-flow
 linearity enabled:
 ```
-> linx --enable-handlers --track-control-flow-linearity
+> linx --control-flow-linearity
 ```
 
 - Invoke a control-flow-linear operation `Choose` in a
