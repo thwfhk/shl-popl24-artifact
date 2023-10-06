@@ -16,7 +16,7 @@ RUN apk update && apk upgrade && \
 
 USER opam
 WORKDIR /artifact/links
-# RUN opam update
+RUN opam update
 RUN opam install dune -y
 RUN opam pin add links . -n
 RUN opam install links --deps-only -y

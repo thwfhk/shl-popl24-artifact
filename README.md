@@ -12,12 +12,15 @@ Section 3. This implementation soundly combine the linear types
 long-standing soundness bug (see issue
 [#544](https://github.com/links-lang/links/issues/544)).
 
+This document is best viewed in a markdown editor or on
+[GitHub](https://github.com/thwfhk/shl-popl24-artifact).
+
 ## Overview of the Artifact
 
 The artifact is structured as follows
 
 1. The section [Getting Started Guide](#getting-started-guide) shows
-   how to install the artifact and run Links.
+   how to install the artifact and enter the Links REPL.
 2. The section [Evaluation Instructions](#evaluation-instructions) is
    a detailed guide on how to run the examples in the paper as well as
    other test examples we provide.
@@ -32,7 +35,7 @@ The artifact is structured as follows
 The directory structure of the artifact is as follows
 
 * `links` contains our fork of Links which is extended with
-  control-flow linearity
+  control-flow linearity.
 * `tests` contains the test files for the examples from the paper, the
   original test suite of Links, and more examples about CFL.
 * `cfl.patch` contains the changesets for our fork of Links
@@ -41,7 +44,7 @@ The directory structure of the artifact is as follows
 
 ## Getting Started Guide
 
-To run the artifact you will need to build the Links language in
+To evaluate the artifact you will need to build the Links language in
 `/links`. For your convenience, we provide a
 [Docker](https://www.docker.com/) image as well as its building
 instructions. Please consult [the official Docker
@@ -50,33 +53,46 @@ instructions on to install and configure Docker for your operating
 system. We also provide a virtual machine which runs the docker
 container of the image.
 
-<!-- ### Installing Links Directly
+### Step 0: Download the artifact
+
+Check it out from the git repository
+```
+> git clone https://github.com/thwfhk/shl-popl24-artifact paper-261
+```
+You should now have the following files on your machine
+```
+> cd paper-261 && ls -m
+Dockerfile, README.md, cfl.patch, links, run-tests.py, tests
+```
+
+Then you have three options: installing Links directly on your
+machine, using docker (recommended), or using the virtual machine.
+
+### Step 1 (A): Install Links Directly
 
 We strongly recommend using the [Docker image](#using-docker) or
 [virtual machine](#using-virtual-machine). If you do not wish to use
-Docker however, you can install Links from source using. -->
+them however, you can install Links from source following the
+instructions in the [Dockerfile](./Dockerfile). Then, jump to the step
+3 Sanity check of [Using Docker](#step-1-b-use-docker).
 
-### Using Docker
+
+### Step 1 (B): Use Docker
 
 The provided Docker image is compatible with x86_64 architectures. For
 other architectures (like Apple M1), you can either build the image
 from scratch using [Dockerfile](./Dockerfile) or use the [virtual
 machine](#using-virtual-machine).
 
-
-1. Unpack the artifact \
-   TODO:
-
-2. Obtain the Docker image \
+1. Obtain the Docker image \
    You can either download a prepared image or build it yourself.
-   1. Downloading the image \
+   *  Downloading the image \
       You can download the prepared image (built for x86_64
       architectures) by issuing the following command
-
       ```
-      $ docker pull links-lang/shl-popl24-artifact:latest
+      > docker pull links-lang/shl-popl24-artifact:latest
       ```
-   2. Building from source \
+   *  Building from source \
       To build the image from scratch you may use provided
       [Dockerfile](./Dockerfile) build script. Depending on your
       hardware the build process may take upwards an hour, though, any
@@ -92,10 +108,10 @@ machine](#using-virtual-machine).
       $ docker buildx build --platform linux/amd64 -t shl-popl24-artifact .
       ```
 
-3. Launch the image inside a container \
-   To test image, we can launch it inside a container. If you are on
-   an x86_64 machine, then invoke the following command to launch the
-   image and drop you into an interactive shell
+2. Launch the image inside a container \
+   If you are on an x86_64 machine, then invoke the following command
+   to launch the image inside a container and drop you into an
+   interactive shell
    ```
    > docker run -it shl-popl24-artifact
    ```
@@ -108,14 +124,14 @@ machine](#using-virtual-machine).
    directed to `/artifact` directory with the following files
    ```
    /artifact$ ls
-   README.md  links  run-tests.py	tests
+   README.md  cfl.patch  links  run-tests.py  tests
    ```
-   To exit the container again, simply type
+   To exit the container, simply type
    ```
-   $ exit
+   > exit
    ```
 
-4. Sanity check \
+3. Sanity check \
    To ensure that Links is successfully built in the directory
    `/artifact/links`, enter the Links REPL with CFL enabled by the
    following command
@@ -141,6 +157,7 @@ machine](#using-virtual-machine).
    Welcome to Links version 0.9.8 (Burghmuirhead)
    links>
    ```
+   To exit Links REPL, enter `ctrl+D`.
 
 
 ### Using Virtual Machine
@@ -150,17 +167,31 @@ stored in the Open Virtual Appliance format supported by most
 virtualisation software. Use your favourite virtualisation solution
 (VirtualBox, VMWare) to import the virtual machine file. After booting
 up the virtual machine log in as "user" with password "user". Then,
-jump to the step 3 of [Using Docker](#using-docker).
+jump to the step 3 Sanity check of [Using Docker](#step-1-b-use-docker).
 
 
 ## Evaluation Instructions
 
 To simplify the evaluation, we wrap all examples and their expected
 results into test files with suffix `.tests`. Three test files
-`paper.tests`, `handlers.tests`, and `more-cfl.tests` as well as their
-auxiliary links programs are provided in `tests`.
+`paper.tests`, `handlers.tests`, and `more-cfl.tests` as well as
+directories containing their auxiliary Links programs are provided in
+the `tests` directory. The configuration file
+`tests/control_flow_linearity.config` is just used to enable the CFL
+flag. The `tests/custom` directory is used to add your own examples.
+```
+/artifact$ ls tests
+control_flow_linearity.config  handlers        more-cfl        paper.tests
+custom			       handlers.tests  more-cfl.tests  popl24
+```
 
 ## Format of Test Files
+
+You can use `vi` or install your favourite text editor to read the
+test files. For example,
+```
+/artifact$ vi tests/paper.tests
+```
 
 The first three lines of test files make sure that the CFL extension
 is enabled for all tests. Comments start with `#`.
@@ -178,39 +209,72 @@ Alternatively, in some cases, the second line contains a path to a
 
 Finally, the lines from the third onward give extra information about the
 expected output of the program.  This includes:
-
   * The messages printed  (`stdout :` and `stderr :`)
   * The exit code, if non-zero ( `exit :`)
   * Flag to read a program from a file (`filemode :`)
 
+For example, the first test case in `tests/paper.tests` is
+```
+S1 The original introduction program
+tests/popl24/intro.links
+filemode : true
+exit : 1
+stderr : @.*Type error.*
+```
+It uses the file in `tests/popl24/intro.links`, which contains the
+motivation example we showed in Section 1 of the paper. This program
+is expected to exit with code 1 and throw a type error.
+
 ### Testing Examples from the Paper
 
 We provide all Links examples in Section 1 and Section 4, as well as
-the Links version of all Feffpop examples in Section 2.
+the Links version of all $\mathrm{F}_{\mathrm{eff}}^\circ$ examples in
+Section 2 in the test file `tests/paper.tests` and the directory
+`tests/popl24`. You can find the correspondence in the description of
+each test case.
 
 To test them, run
 ```
 /artifact$ ./run-tests.py tests/paper.tests
 ```
+If all tests are passed, the last two lines of the output should be
+```
+0 failures (+0 ignored)
+31 successes
+```
 
 ### Testing the Test Suite of Links
 
 We provide all examples from the original test suite of Links that use
-effect handlers.
+effect handlers in the test file `tests/handlers.tests` and the
+directory `tests/handlers`. This test shows that our CFL extension is
+backward compatible with the handler feature of Links.
 
 To test them, run
-
 ```
 /artifact$ ./run-tests.py tests/handlers.tests
+```
+If all tests are passed, the last two lines of the output should be
+```
+0 failures (+0 ignored)
+124 successes
 ```
 
 ### Testing More Examples of CFL
 
-We provide more examples to test the behaviour of the CFL extension.
+We provide more examples to test the behaviour of the CFL extension in
+the test file `tests/more-cfl.tests` and the directory
+`tests/more-cfl`. A brief description can be found in the first line
+of each test case.
 
 To test them, run
 ```
 /artifact$ ./run-tests.py tests/more-cfl.tests
+```
+If all tests are passed, the last two lines of the output should be
+```
+0 failures (+0 ignored)
+33 successes
 ```
 
 ### Creating Your Own Examples
@@ -219,7 +283,7 @@ We provide two guides, [Quick Guide to Links](#quick-guide-to-links)
 and [Quick Guide to CFL in Links](#quick-guide-to-cfl-in-links), to
 help you get familiar with Links in order to create your own examples.
 You can test the examples in the guide in the REPL and write your own
-examples.
+examples in either REPL or standalone files.
 
 To enter the Links REPL with CFL enabled, run
 ```
@@ -380,7 +444,9 @@ This section gives a quick introduction to the CFL extension of Links,
 the main contribution of our artifact. The extension is enabled by
 passing the flag `--control-flow-linearity`, which automatically
 enables the flag `--enable-handlers`. Some explanation of the CFL
-extension can also be found in Section 4 of the paper.
+extension in Links and its relation to
+$\mathrm{F}_{\mathrm{eff}}^\circ$ can also be found in Section 4 of
+the paper.
 
 ### New Constructs
 
@@ -426,20 +492,12 @@ unlimited operations in a control-flow-linear effect scope (even
 before `xlin`) would cause type errors.
 
 Though `xlin` can be written anywhere in an effect scope, for good
-coding practice, we recommand writing `xlin` at the beginning. We have
-the following syntactic sugar
-```
-xl{ ... } ≣ { xlin; ... } or
-@{ ... } ≣ { xlin; ... }
-```
-(TODO: do we really want this syntactic sugar? It would be good if it
-is considered to be valid block syntax. But this may require
-non-trivial changes.)
+coding practice, we recommand writing `xlin` at the beginning of
+scopes.
 
 ### Examples
 
-Again, we enter REPL with both effect handlers and control-flow
-linearity enabled:
+Again, we enter REPL with CFL enabled:
 ```
 > linx --control-flow-linearity
 ```
@@ -558,9 +616,6 @@ linearity enabled:
   types in Links). It is meaningful future work to explicitly separate
   value row variables and effect row variables in Links.
 
-### Relationship between Feffpop and Links with CFL
-
-TODO:
 
 ## Relevant Source Files
 
