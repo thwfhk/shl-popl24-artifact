@@ -180,7 +180,7 @@ seconds. This is usually enough. If you accidentally get timeout
 errors, please try to set the `TIMEOUT` on line 11 of `run-tests.py`
 to a larger number.
 
-## Format of Test Files
+### Format of Test Files
 
 You can use `vi` or install your favourite text editor to read the
 test files. For example,
