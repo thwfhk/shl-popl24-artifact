@@ -50,10 +50,9 @@ To evaluate the artifact you will need to build the Links language in
 instructions. Please consult [the official Docker
 documentation](https://docs.docker.com/engine/install/) for
 instructions on to install and configure Docker for your operating
-system. We also provide a virtual machine which runs the docker
-container of the image.
+system.
 
-### Step 0: Download the artifact
+### Download the artifact
 
 Check it out from the git repository
 ```
@@ -65,24 +64,22 @@ You should now have the following files on your machine
 Dockerfile, README.md, cfl.patch, links, run-tests.py, tests
 ```
 
-Then you have three options: installing Links directly on your
-machine, using docker (recommended), or using the virtual machine.
+Then you can either [build Links](#a-install-links-directly) on your
+machine or [use Docker](#b-use-docker).
 
-### Step 1 (A): Install Links Directly
+### A. Install Links Directly
 
-We strongly recommend using the [Docker image](#using-docker) or
-[virtual machine](#using-virtual-machine). If you do not wish to use
-them however, you can install Links from source following the
-instructions in the [Dockerfile](./Dockerfile). Then, jump to the step
-3 Sanity check of [Using Docker](#step-1-b-use-docker).
+We strongly recommend using the [Docker image](#b-use-docker). If you
+do not wish to use it however, you can install Links from source
+following the instructions in the [Dockerfile](./Dockerfile). Then,
+jump to the step 3 Sanity check of [Using Docker](#b-use-docker).
 
 
-### Step 1 (B): Use Docker
+### B. Use Docker
 
 The provided Docker image is compatible with x86_64 architectures. For
-other architectures (like Apple M1), you can either build the image
-from scratch using [Dockerfile](./Dockerfile) or use the [virtual
-machine](#using-virtual-machine).
+other architectures (like Apple M1), you can build the image from
+scratch using [Dockerfile](./Dockerfile).
 
 1. Obtain the Docker image \
    You can either download a prepared image or build it yourself.
@@ -90,7 +87,7 @@ machine](#using-virtual-machine).
       You can download the prepared image (built for x86_64
       architectures) by issuing the following command
       ```
-      > docker pull links-lang/shl-popl24-artifact:latest
+      > docker pull thwfhk/shl-popl24-artifact:latest
       ```
    *  Building from source \
       To build the image from scratch you may use provided
@@ -158,17 +155,6 @@ machine](#using-virtual-machine).
    links>
    ```
    To exit Links REPL, enter `ctrl+D`.
-
-
-### Using Virtual Machine
-
-We provide the file `shl-popl24.ova`, which is a virtual machine
-stored in the Open Virtual Appliance format supported by most
-virtualisation software. Use your favourite virtualisation solution
-(VirtualBox, VMWare) to import the virtual machine file. After booting
-up the virtual machine log in as "user" with password "user". Then,
-jump to the step 3 Sanity check of [Using Docker](#step-1-b-use-docker).
-
 
 ## Evaluation Instructions
 
