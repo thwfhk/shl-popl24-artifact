@@ -88,7 +88,10 @@ scratch using [Dockerfile](./Dockerfile).
       architectures) by issuing the following command
       ```
       > docker pull thwfhk/shl-popl24-artifact:latest
+      > docker tag thwfhk/shl-popl24-artifact shl-popl24-artifact
       ```
+      The last command creates an alias for the image, which we will
+      use exclusively throughout this guide.
    *  Building from source \
       To build the image from scratch you may use provided
       [Dockerfile](./Dockerfile) build script. Depending on your
@@ -170,6 +173,12 @@ flag. The `tests/custom` directory is used to add your own examples.
 control_flow_linearity.config  handlers        more-cfl        paper.tests
 custom			       handlers.tests  more-cfl.tests  popl24
 ```
+
+The script `run-tests.py` parses the test files and run the test cases
+in them. Notice that the default timeout for each test case is 60
+seconds. This is usually enough. If you accidentally get timeout
+errors, please try to set the `TIMEOUT` on line 11 of `run-tests.py`
+to a larger number.
 
 ## Format of Test Files
 

@@ -12,7 +12,8 @@ COPY README.md README.md
 USER root
 RUN apk update && apk upgrade && \
     apk add gmp-dev && \
-    chown opam:nogroup -R /artifact/links
+    chown opam:nogroup -R /artifact/links &&\
+    chown opam:nogroup -R /artifact/tests
 
 USER opam
 WORKDIR /artifact/links
