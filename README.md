@@ -72,7 +72,7 @@ machine or [use Docker](#b-use-docker).
 We strongly recommend using the [Docker image](#b-use-docker). If you
 do not wish to use it however, you can install Links from source
 following the instructions in the [Dockerfile](./Dockerfile). Then,
-jump to the step 3 Sanity check of [Using Docker](#b-use-docker).
+jump to the step 3 Soundness check of [Using Docker](#b-use-docker).
 
 
 ### B. Use Docker
@@ -131,7 +131,7 @@ scratch using [Dockerfile](./Dockerfile).
    > exit
    ```
 
-3. Sanity check \
+3. Soundness check \
    To ensure that Links is successfully built in the directory
    `/artifact/links`, enter the Links REPL with CFL enabled by the
    following command
