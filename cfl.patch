@@ -198,7 +198,6 @@ index f60f5846..9ec30b73 100644
            Types.fresh_type_variable (CommonTypes.lin_any, CommonTypes.res_any) in
          let with_pos x = SourceCode.WithPos.make ~pos x in
 -        let doOp = DoOperation (with_pos (Operation failure_op_name), [], Some (Types.empty_type)) in
-+        (* FIXME: WT: I don't know whether should it be lindo or not *)
 +        let doOp = DoOperation (with_pos (Operation failure_op_name), [], Some (Types.empty_type), DeclaredLinearity.Lin) in
          (o, with_pos (Switch (with_pos doOp, [], Some ty)), ty)
      | { node = TryInOtherwise (_, _, _, _, None); _} -> assert false
@@ -208,7 +207,6 @@ index f60f5846..9ec30b73 100644
  
          let otherwise_pat : Sugartypes.Pattern.with_pos =
 -          with_dummy_pos (Pattern.Operation (failure_op_name, [], cont_pat)) in
-+          (* FIXME: WT: I don't know whether should it be lincase or not *)
 +          with_dummy_pos (Pattern.Operation (failure_op_name, [], cont_pat, DeclaredLinearity.Lin)) in
  
          let otherwise_clause = (otherwise_pat, otherwise_phr) in
@@ -1069,8 +1067,6 @@ index 6d2d8077..c0cad95f 100644
              let vs = evs ps in
              I.do_operation (name, vs, t)
            | Operation _ -> assert false
-+          (* FIXME: I don't know what's this. I suppose it is related to semantics,
-+             but Unlet and Linlet do not influence semantics. *)
 +          | Unlet _ -> assert false
 +          | Linlet _ -> assert false
            | Handle { sh_expr; sh_effect_cases; sh_value_cases; sh_descr } ->
@@ -1473,7 +1469,7 @@ index a91b81c1..e9d9fcaf 100644
 -             | [], [t] -> Types.Operation (Types.unit_type, t)
 -             | [], ts -> Types.make_tuple_type ts
 +             | [], [t] -> Types.Operation (Types.unit_type, t, linearity)
-+             | [], ts -> Types.make_tuple_type ts  (* FIXME: WT: I don't understand this case *)
++             | [], ts -> Types.make_tuple_type ts
               | ts, [t] ->
 -                Types.make_operation_type ts t
 +                LinCont.make_operation_type ~linear:is_lincase ts t
@@ -2127,10 +2123,6 @@ index 5011f232..6449adac 100644
                        want contractions: check if a contraction is possible here
                        *)
                       if d = unit_type then c else tp
-+                     (* FIXME: WT: I dont understand where this is
-+                        used. However, it seems dangerous that the
-+                        syntactic sugar discards the linearity
-+                        information. *)
                    | tp -> tp
                  in
                  let decide_field : tid -> string -> field_spec -> 'self_type * field_spec_map -> 'self_type * field_spec_map
