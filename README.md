@@ -364,7 +364,7 @@ instead, it infers the signatures for them.
 
 - Handle the `Choose` operation with an explicit return clause:
   ```
-  links> handle (f1()) {
+  links> handle (f2()) {
            case x -> [x]
            case <Choose => r> -> r(true) ++ r(false)
          };
@@ -383,7 +383,7 @@ instead, it infers the signatures for them.
 - Compose the handlers of `Print` and `Choose`:
   ```
   links> handle (handle(f3()) {case <Print(s) => r> -> println(s); r(())})
-         {case <Choose => r> -> r(true); r(false)}
+         {case <Choose => r> -> r(true); r(false)};
   42
   84
   () : ()
@@ -532,7 +532,7 @@ Again, we enter REPL with CFL enabled:
   links> handle (g2()) {case <Choose =@ r> -> xlin; r(true)};
   42 : Int
   links> handle (handle (g3()) {case <Print(s) => r> -> println(s); r(())})
-         {case <Choose =@ r> -> xlin; r(true)}
+         {case <Choose =@ r> -> xlin; r(true)};
   42
   () : ()
   ```
@@ -600,7 +600,7 @@ Again, we enter REPL with CFL enabled:
 - Explicit quantifiers for effect row variables with control-flow
   linearity:
   ```
-  links> sig f:forall e::Row(Any). () {Get:() => Int|e}-> Int fun f() {do Get}
+  links> sig f:forall e::Row(Any). () {Get:() => Int|e}-> Int fun f() {do Get};
   f = fun : () {Get:() => Int|_}-> Int
   ```
   When writing explicit quantifiers, we should explicitly annotate the
