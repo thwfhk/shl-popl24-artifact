@@ -2,7 +2,7 @@
 
 This is the artifact for the paper:
 
-*Wenhao Tang, Daniel Hillerström, Sam Lindley, J. Garrett Morris, "Soundly Handling Linearity"*
+*Wenhao Tang, Daniel Hillerström, Sam Lindley, J. Garrett Morris, "Soundly Handling Linearity", Proc. ACM Program. Lang. 8(POPL), 2024.*
 
 The artifact contains the implementation of control-flow linearity
 (CFL) extension in Links as described in Section 4 of the paper, based
